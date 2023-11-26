@@ -3,6 +3,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Класс TableService управляет информацией о столах в антикафе
+ */
 public class TableService {
     /**
      * Карта, представляющая все столы в ресторане, с ключами в виде их уникальных идентификаторов.

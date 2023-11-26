@@ -2,7 +2,14 @@ import java.util.DoubleSummaryStatistics;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Класс Main представляет собой программу для управления антикафе, использующую классы VisitService и TableService
+ * Позволяет выполнять различные действия, такие как занятие и освобождение столиков, просмотр информации о столиках, визитах и прибыли, просмотр статистических данных
+ */
 public class Main {
+    /**
+     * Представляет собой меню для пользователя антикафе
+     */
     private static String menu = """
 
             1. Занять столик
@@ -21,6 +28,10 @@ public class Main {
             """;
     private static Scanner in = new Scanner(System.in);
 
+    /**
+     * Основной блок программы, управляющий выполнением действий пользователя в антикафе
+     * @param args аргументы командной строки (не используются)
+     */
     public static void main(String[] args) {
 
         while (true) {
@@ -40,6 +51,8 @@ public class Main {
                     System.out.printf("Столик успешно занят.%n ID визита: %d%nСтарт визита: %s", visit.getId(), visit.getFormattedTime() );
                 }
                 case 2 -> {
+                    System.out.println("Занятые столики");
+                    System.out.println(VisitService.getReservedTables());
                     System.out.println("Выберите столик: ");
 
                     int tableId = in.nextInt();
@@ -77,13 +90,12 @@ public class Main {
                     System.out.println(VisitService.getTotalCurrentDuration());
                     System.out.println(VisitService.getTotalCurrentCost());
                 }
-
                 case 8 ->{
                     System.out.println("Общая прибыль");
                     System.out.println(VisitService.getTotalCostOfAllTime());
                 }
                 case 9 -> {
-                    System.out.println("");
+                    System.out.println("Cредняя занятость столика по времени");
                     Map<Table, DoubleSummaryStatistics> map = VisitService.getAverageDurationOfAllTables();
 
                     for (Table table:map.keySet()
@@ -92,14 +104,15 @@ public class Main {
                     }
                 }
                 case 10 -> {
-                    System.out.println("Чаще всего выбирается");
+                    System.out.println("Столик, который чаще всего выбирается");
                     System.out.println(VisitService.getTheMostPopularTable());
                 }
                 case 11 -> {
-                    System.out.println("больше всего в кассу");
+                    System.out.println("Столик, принесший самую большую вырочку");
                     System.out.println(VisitService.getTheMostEarnedTable());
                 }
                 case 12 -> {
+                    System.out.println("Cписок всех визитов");
                     for (Visit visit:VisitService.getVisits()) {
                         System.out.printf("Столик: %s%n Длительность: %d Занятость: %b  ", visit.getTable(), visit.getDuration(), visit.isFinished());
                         if (visit.isFinished())
@@ -107,8 +120,8 @@ public class Main {
 
                     }
                 }
-
                 case 13 -> {
+                    System.out.println("Список всех завершенных визитов");
                     for (Visit visit:VisitService.getFinishedVisits()) {
                         System.out.printf("Столик: %s%n Длительность: %d Занятость: %b  ", visit.getTable(), visit.getDuration(), visit.isFinished());
                         if (visit.isFinished())

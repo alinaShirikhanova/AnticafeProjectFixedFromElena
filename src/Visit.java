@@ -2,6 +2,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Класс Visit представляет собой информацию о посещении клиентом антикафе
+ */
 public class Visit {
     private static int lastId = 1;
     private int id;
