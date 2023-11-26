@@ -205,7 +205,7 @@ public class Visit {
      * @return продолжительность посещения в секундах.
      */
     public long calculateDuration(){
-        return Duration.between(startTime,LocalDateTime.now()).toSeconds();
+        return Duration.between(startTime,LocalDateTime.now()).toMinutes();
     }
 
     /**

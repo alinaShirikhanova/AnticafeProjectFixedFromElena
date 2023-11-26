@@ -42,21 +42,32 @@ public class Main {
             switch (option) {
                 case 1 -> {
                     System.out.println("Список свободных столиков: ");
-                    for (Table table :TableService.getFreeTables()) {
+                    for (Table table : VisitService.getFreeTables()) {
                         System.out.println(table);
                     }
                     System.out.println("Выберите столик: ");
                     int tableId = in.nextInt();
-                    Visit visit = VisitService.createVisit(new Client(), tableId);
-                    System.out.printf("Столик успешно занят.%n ID визита: %d%nСтарт визита: %s", visit.getId(), visit.getFormattedTime() );
+                    try {
+                        Visit visit = VisitService.createVisit(new Client(), tableId);
+                        System.out.printf("Столик успешно занят.%n ID визита: %d%nСтарт визита: %s", visit.getId(), visit.getFormattedTime() );
+                    }
+                    catch (RuntimeException ex){
+                        System.out.println(ex.getMessage());
+                    }
                 }
                 case 2 -> {
                     System.out.println("Занятые столики");
                     System.out.println(VisitService.getReservedTables());
                     System.out.println("Выберите столик: ");
-
                     int tableId = in.nextInt();
-                    VisitService.finishVisit(tableId);
+
+                    try {
+                        VisitService.finishVisit(tableId);
+                    }
+
+                    catch (RuntimeException ex){
+                        System.out.println(ex.getMessage());
+                    }
                     System.out.println(VisitService.getAverageDurationOfAllTables());
 
                 }
@@ -83,7 +94,12 @@ public class Main {
                     int tableId = in.nextInt();
                     System.out.println();
                     System.out.println(VisitService.getTotalCurrentDuration());
-                    System.out.println(VisitService.getCurrentCost(tableId));
+                    try {
+                        System.out.println(VisitService.getCurrentCost(tableId));
+                    } catch (RuntimeException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+
                 }
                 case 7 -> {
                     System.out.println("Просмотр информации о том, сколько придется заплатить всем гостям за столиками, если они прямо сейчас покинут антикафе");
@@ -100,16 +116,27 @@ public class Main {
 
                     for (Table table:map.keySet()
                     ) {
-                        System.out.println(table + ": " + map.get(table));
+                        System.out.println(table + ": " + map.get(table).getAverage());
                     }
                 }
                 case 10 -> {
                     System.out.println("Столик, который чаще всего выбирается");
-                    System.out.println(VisitService.getTheMostPopularTable());
+                    try {
+                        System.out.println(VisitService.getTheMostPopularTable());
+                    }
+                    catch (RuntimeException ex){
+                        System.out.println(ex.getMessage());
+                    }
+
                 }
                 case 11 -> {
-                    System.out.println("Столик, принесший самую большую вырочку");
-                    System.out.println(VisitService.getTheMostEarnedTable());
+                    try {
+                        System.out.println(VisitService.getTheMostEarnedTable());
+                    }
+                    catch (RuntimeException ex){
+                        System.out.println(ex.getMessage());
+                    }
+
                 }
                 case 12 -> {
                     System.out.println("Cписок всех визитов");
@@ -117,7 +144,6 @@ public class Main {
                         System.out.printf("Столик: %s%n Длительность: %d Занятость: %b  ", visit.getTable(), visit.getDuration(), visit.isFinished());
                         if (visit.isFinished())
                             System.out.printf("Стоимость: %f", visit.getCost());
-
                     }
                 }
                 case 13 -> {

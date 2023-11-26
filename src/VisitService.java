@@ -54,7 +54,10 @@ public class VisitService {
      * @return объект Visit, представляющий созданное посещение
      */
     public static Visit createVisit(Client client, int tableId) {
+
         Table table = TableService.tables.get(tableId);
+        if (!table.isFree())
+            throw new RuntimeException("Этот столик уже занят");
         Visit visit = new Visit(client, table, LocalDateTime.now());
         table.setFree(false);
         visits.add(visit);
@@ -69,6 +72,9 @@ public class VisitService {
      */
     public static Visit finishVisit(int tableId) {
         Table table = TableService.tables.get(tableId);
+        if (table.isFree()){
+            throw new RuntimeException("Выбранный столик свободен");
+        }
         Visit visit = visits.stream()
                 .filter(v -> v.getTable().getId() == tableId && !v.isFinished())
                 .findFirst().orElseThrow();
@@ -135,7 +141,7 @@ public class VisitService {
     public static double getCurrentCost(int tableId) {
         Visit visit = visits.stream()
                 .filter(v -> v.getTable().getId() == tableId && !v.isFinished())
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(() -> new RuntimeException("Столик свободен"));
         return visit.calculateCost(pricePerMinute);
     }
 
@@ -168,7 +174,7 @@ public class VisitService {
         Map<Table, Long> map = visits.stream()
                 .filter(Visit::isFinished).collect(Collectors.groupingBy(Visit::getTable, Collectors.counting()));
         return map.entrySet().stream()
-                .max(Map.Entry.comparingByValue()).orElseThrow();
+                .max(Map.Entry.comparingByValue()).orElseThrow(() ->new RuntimeException("Визитов нет"));
     }
 
     /**
@@ -178,7 +184,7 @@ public class VisitService {
     public static Map<Table, DoubleSummaryStatistics> getAverageDurationOfAllTables() {
         return visits.stream()
                 .filter(Visit::isFinished)
-                .collect(Collectors.groupingBy(Visit::getTable, Collectors.summarizingDouble(Visit::getCost)));
+                .collect(Collectors.groupingBy(Visit::getTable, Collectors.summarizingDouble(Visit::getDuration)));
     }
 
     /**
