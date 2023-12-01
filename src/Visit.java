@@ -32,9 +32,8 @@ public class Visit {
      *
      */
     public  long getCurrentDuration(){
-        Duration seconds = Duration.between(LocalDateTime.now(), startTime);
+        Duration seconds = Duration.between(startTime, LocalDateTime.now());
         return seconds.toMinutes();
-
     }
 
     /**

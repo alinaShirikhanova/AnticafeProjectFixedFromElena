@@ -54,10 +54,12 @@ public class VisitService {
      * @return объект Visit, представляющий созданное посещение
      */
     public static Visit createVisit(Client client, int tableId) {
-
+        if (tableId < 1 || tableId > 10)
+            throw new RuntimeException("Некорректный номер столика");
         Table table = TableService.tables.get(tableId);
         if (!table.isFree())
             throw new RuntimeException("Этот столик уже занят");
+
         Visit visit = new Visit(client, table, LocalDateTime.now());
         table.setFree(false);
         visits.add(visit);
