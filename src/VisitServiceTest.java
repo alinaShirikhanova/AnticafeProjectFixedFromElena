@@ -1,27 +1,27 @@
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 class VisitServiceTest {
 
-@BeforeEach
-public void setUp(){
-    VisitService.createVisit(new Client(), 1);
-    VisitService.createVisit(new Client(), 2);
-    VisitService.createVisit(new Client(), 3);
-    VisitService.createVisit(new Client(), 4);
-    VisitService.createVisit(new Client(), 5);
-}
+    @BeforeEach
+    public void setUp() {
+        VisitService.createVisit(new Client(), 1);
+        VisitService.createVisit(new Client(), 2);
+        VisitService.createVisit(new Client(), 3);
+        VisitService.createVisit(new Client(), 4);
+        VisitService.createVisit(new Client(), 5);
+    }
+
     @org.junit.jupiter.api.Test
     void createVisitPositive() {
         assertEquals(1, VisitService.getVisits().size());
         assertEquals(1, VisitService.getVisits().get(0).getTable().getId());
     }
+
     @org.junit.jupiter.api.Test
     void createVisitNegative() {
         assertThrows(RuntimeException.class, () -> VisitService.createVisit(new Client(), 1));
@@ -31,14 +31,14 @@ public void setUp(){
     @org.junit.jupiter.api.Test
     void finishVisitPositive() {
         VisitService.finishVisit(1);
-        assertEquals(true,VisitService.getVisits().get(0).isFinished());
-        assertEquals(false,VisitService.getVisits().get(1).isFinished());
+        assertEquals(true, VisitService.getVisits().get(0).isFinished());
+        assertEquals(false, VisitService.getVisits().get(1).isFinished());
     }
 
     @org.junit.jupiter.api.Test
     void finishVisitNegative() {
 
-    assertThrows(RuntimeException.class, () -> VisitService.finishVisit(7));
+        assertThrows(RuntimeException.class, () -> VisitService.finishVisit(7));
     }
 
     @org.junit.jupiter.api.Test
@@ -70,45 +70,100 @@ public void setUp(){
 
     @org.junit.jupiter.api.Test
     void getFinishedVisits() {
-    VisitService.finishVisit(1);
-    VisitService.finishVisit(2);
-    assertEquals(1, VisitService.getFinishedVisits().get(0).getTable().getId());
-    assertEquals(2, VisitService.getFinishedVisits().get(1).getTable().getId());
-    assertEquals(2, VisitService.getFinishedVisits().size());
+        VisitService.finishVisit(1);
+        VisitService.finishVisit(2);
+        assertEquals(1, VisitService.getFinishedVisits().get(0).getTable().getId());
+        assertEquals(2, VisitService.getFinishedVisits().get(1).getTable().getId());
+        assertEquals(2, VisitService.getFinishedVisits().size());
     }
 
     @org.junit.jupiter.api.Test
     void getCurrentDuration() throws InterruptedException {
-    VisitService.getCurrentDuration(5);
-    TimeUnit.MINUTES.sleep(1);
-    assertEquals(1, VisitService.getCurrentDuration(5));
+        VisitService.getCurrentDuration(5);
+        TimeUnit.MINUTES.sleep(1);
+        assertEquals(1, VisitService.getCurrentDuration(5));
     }
 
     @org.junit.jupiter.api.Test
-    void getTotalCurrentDuration() {
+    void getTotalCurrentDuration() throws InterruptedException {
+        TimeUnit.MINUTES.sleep(1);
+        Map<Table, Long> expected = Map.of(
+                TableService.tables.get(5), 1L,
+                TableService.tables.get(1), 1L,
+                TableService.tables.get(2), 1L,
+                TableService.tables.get(3), 1L,
+                TableService.tables.get(4), 1L
+        );
+        assertEquals(expected, VisitService.getTotalCurrentDuration());
+
+
     }
 
     @org.junit.jupiter.api.Test
-    void getCurrentCost() {
+    void getCurrentCost() throws InterruptedException {
+        TimeUnit.MINUTES.sleep(1);
+        assertEquals(5, VisitService.getCurrentCost(1));
     }
 
     @org.junit.jupiter.api.Test
-    void getTotalCurrentCost() {
+    void getTotalCurrentCost() throws InterruptedException {
+        VisitService.finishVisit(1);
+        TimeUnit.MINUTES.sleep(1);
+        Map<Table, Double> expected = Map.of(
+                TableService.tables.get(5), 5.0,
+                TableService.tables.get(2), 5.0,
+                TableService.tables.get(3), 5.0,
+                TableService.tables.get(4), 5.0);
+        assertEquals(expected, VisitService.getTotalCurrentCost());
     }
 
     @org.junit.jupiter.api.Test
-    void getTotalCostOfAllTime() {
+    void getTotalCostOfAllTime() throws InterruptedException {
+        TimeUnit.MINUTES.sleep(1);
+        VisitService.finishVisit(1);
+        VisitService.finishVisit(2);
+        assertEquals(10, VisitService.getTotalCostOfAllTime());
     }
 
     @org.junit.jupiter.api.Test
     void getTheMostPopularTable() {
+        VisitService.finishVisit(1);
+        VisitService.createVisit(new Client(), 1);
+        VisitService.finishVisit(1);
+        VisitService.createVisit(new Client(), 1);
+        VisitService.finishVisit(1);
+
+        assertEquals(TableService.tables.get(1), VisitService.getTheMostPopularTable().getKey());
+        assertEquals(3, VisitService.getTheMostPopularTable().getValue());
     }
 
     @org.junit.jupiter.api.Test
-    void getAverageDurationOfAllTables() {
+    void getAverageDurationOfAllTables() throws InterruptedException {
+        TimeUnit.MINUTES.sleep(1);
+        VisitService.finishVisit(1);
+        VisitService.finishVisit(2);
+        VisitService.createVisit(new Client(), 1);
+        TimeUnit.MINUTES.sleep(1);
+        VisitService.finishVisit(1);
+        Table table1 = TableService.tables.get(1);
+        Table table2 = TableService.tables.get(2);
+
+
+
+        assertEquals(1.0, VisitService.getAverageDurationOfAllTables().get(table1).getAverage());
+        assertEquals(1.0, VisitService.getAverageDurationOfAllTables().get(table2).getAverage());
+
     }
 
     @org.junit.jupiter.api.Test
-    void getTheMostEarnedTable() {
+    void getTheMostEarnedTable() throws InterruptedException {
+        TimeUnit.MINUTES.sleep(1);
+        VisitService.finishVisit(1);
+        VisitService.finishVisit(2);
+        VisitService.createVisit(new Client(), 1);
+        TimeUnit.MINUTES.sleep(1);
+        VisitService.finishVisit(1);
+        Table table1 = TableService.tables.get(1);
+        assertEquals(table1, VisitService.getTheMostEarnedTable().getKey());
     }
 }
